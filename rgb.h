@@ -19,6 +19,9 @@ public:
 	uint8_t* r_ptr;
 	uint8_t* g_ptr;
 	uint8_t* b_ptr;
+	uint16_t* r16;
+	uint16_t* g16;
+	uint16_t* b16;
 
 	RGB(int32_t _width, int32_t _height) {
 		width = _width;
@@ -26,6 +29,9 @@ public:
 		r_ptr = new uint8_t[width * height];
 		g_ptr = new uint8_t[width * height];
 		b_ptr = new uint8_t[width * height];
+		r16 = new uint16_t[width * height];
+		g16 = new uint16_t[width * height];
+		b16 = new uint16_t[width * height];
 		clean();
 	}
 
@@ -33,8 +39,12 @@ public:
 		delete[] r_ptr;
 		delete[] g_ptr;
 		delete[] b_ptr;
+		delete[] r16;
+		delete[] g16;
+		delete[] b16;
 	}
 
+	void extend() const;
 	void clean() const;
 	int32_t getWidth() const;
 	int32_t getHeight() const;

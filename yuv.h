@@ -6,7 +6,6 @@
 //	All rights reserved. Only for Windows. 
 //==============================================
 
-
 #include <cstdint>
 #include <iostream>
 class RGB;

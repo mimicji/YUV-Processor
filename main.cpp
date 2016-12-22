@@ -14,8 +14,7 @@
 #define INPUT_YUV_1 "D:\\dem1.yuv"
 #define INPUT_YUV_2 "D:\\dem2.yuv"
 #define OUTPUT_YUV "D:\\out.yuv"
-#define WIDTH 1920
-#define HEIGHT 1080
+
 
 using std::cerr;
 using std::endl;
@@ -52,7 +51,9 @@ int main() {
 	FILE* fout = fopen(OUTPUT_YUV, "wb");
 
 	yuv2rgb(tmp_rgb, input_yuv);
+	tmp_rgb->extend();
 	yuv2rgb(tmp_rgb2, input_yuv2);
+	tmp_rgb2->extend();
 	FILE* bmpout = fopen("D:\\out.bmp", "wb");
 	tmp_rgb->write_bmp(bmpout);
 	fclose(bmpout);
@@ -71,8 +72,8 @@ int main() {
 	int alpha;
 	for (alpha = 1; alpha < 256; alpha += 3) {
 		clock_t recuit_time = clock();
-		//alpha_blend(dst_rgb, tmp_rgb, alpha);
-		image_overlay(dst_rgb, tmp_rgb, tmp_rgb2, alpha);
+		//MMX::alpha_blend(dst_rgb, tmp_rgb, alpha);
+		MMX::image_overlay(dst_rgb, tmp_rgb, tmp_rgb2, alpha);
 		rgb2yuv(dst_yuv, dst_rgb);
 		total_time += clock() - recuit_time;
 		dst_yuv->write(fout);

@@ -10,6 +10,14 @@
 #include "rgb.h"
 #include "bmp.h"
 
+void RGB::extend() const {
+	for (int i = 0; i<width * height; i++) {
+		this->r16[i] = (uint16_t)this->r_ptr[i];
+		this->g16[i] = (uint16_t)this->g_ptr[i];
+		this->b16[i] = (uint16_t)this->b_ptr[i];
+	}
+}
+
 void RGB::clean() const {
 	memset(r_ptr, 0, width * height);
 	memset(g_ptr, 0, width * height);

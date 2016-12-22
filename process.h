@@ -6,8 +6,13 @@
 //	All rights reserved. Only for Windows. 
 //==============================================
 
+#include <mmintrin.h>
+#include <xmmintrin.h>
+#include <emmintrin.h>
 #include "rgb.h"
 #include "yuv.h"
+#define WIDTH 1920
+#define HEIGHT 1080
 
 namespace Non_Simd {
 	void yuv2rgb(const RGB* dst_rgb, const YUV* src_yuv);
