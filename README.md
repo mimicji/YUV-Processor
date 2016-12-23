@@ -1,6 +1,7 @@
 # YUV-Processor #
+State: Done
 
-YUV-Processor is a team work (Lab4.1) of Computer Architecture. It is developed by [Kaihang Ji](https://github.com/mimicji) and [Jizhou Li](https://github.com/HeraclitusTheFirelord). All rights reserved.
+YUV-Processor is a team work (Lab4.1) of Computer Architecture. It is developed by [Kaihang Ji](https://github.com/mimicji). All rights reserved.
 
 Mainly it has two functions:
 
