@@ -12,9 +12,9 @@
 
 void RGB::extend() const {
 	for (int i = 0; i<width * height; i++) {
-		this->r16[i] = (uint16_t)this->r_ptr[i];
-		this->g16[i] = (uint16_t)this->g_ptr[i];
-		this->b16[i] = (uint16_t)this->b_ptr[i];
+		this->r16[i] = (int16_t)this->r_ptr[i];
+		this->g16[i] = (int16_t)this->g_ptr[i];
+		this->b16[i] = (int16_t)this->b_ptr[i];
 	}
 }
 

@@ -60,35 +60,27 @@ inline void image_overlay_MMX(__m64* dst, __m64* src1, __m64* src2, const uint16
 	_mm_empty();
 }
 
-uint16_t dst16[WIDTH * HEIGHT];
-
-inline void blend_one_color_MMX(uint8_t* dst8, uint16_t* src16, const uint8_t alpha) {
-	int i;
+inline void blend_one_color_MMX(int16_t* dst16, uint16_t* src16, const uint8_t alpha) {
 	alpha_blend_MMX((__m64*)dst16, (__m64*)src16, alpha, WIDTH * HEIGHT / 4);
-	for (i = 0; i < WIDTH * HEIGHT; i++) {
-		dst8[i] = (uint8_t)dst16[i];
-	}
 }
 
-inline void overlay_one_color_MMX(uint8_t* dst8, uint16_t* src16_1, uint16_t* src16_2, const uint8_t alpha) {
-	int i;
+inline void overlay_one_color_MMX(int16_t* dst16, uint16_t* src16_1, uint16_t* src16_2, const uint8_t alpha) {
 	image_overlay_MMX((__m64*)dst16, (__m64*)src16_1, (__m64*)src16_2, alpha, WIDTH * HEIGHT / 4);
-	for (i = 0; i < WIDTH * HEIGHT; i++) {
-		dst8[i] = (uint8_t)dst16[i];
-	}
 }
 }
 
 void MMX::alpha_blend(const RGB* dst_rgb, const RGB* src_rgb, const uint8_t alpha) {
-	blend_one_color_MMX(dst_rgb->r_ptr, src_rgb->r16, alpha);
-	blend_one_color_MMX(dst_rgb->g_ptr, src_rgb->g16, alpha);
-	blend_one_color_MMX(dst_rgb->b_ptr, src_rgb->b16, alpha);
+	// In this function, it only changes the RGB16. Thus, it can not match functions in Non_Simd
+	blend_one_color_MMX(dst_rgb->r16, (uint16_t*)src_rgb->r16, alpha);
+	blend_one_color_MMX(dst_rgb->g16, (uint16_t*)src_rgb->g16, alpha);
+	blend_one_color_MMX(dst_rgb->b16, (uint16_t*)src_rgb->b16, alpha);
 }
 
 void MMX::image_overlay(const RGB* dst_rgb, const RGB* src_rgb_1, const RGB* src_rgb_2, const uint8_t alpha) {
-	overlay_one_color_MMX(dst_rgb->r_ptr, src_rgb_1->r16, src_rgb_2->r16, alpha);
-	overlay_one_color_MMX(dst_rgb->g_ptr, src_rgb_1->g16, src_rgb_2->g16, alpha);
-	overlay_one_color_MMX(dst_rgb->b_ptr, src_rgb_1->b16, src_rgb_2->b16, alpha);
+	// In this function, it only changes the RGB16. Thus, it can not match functions in Non_Simd
+	overlay_one_color_MMX(dst_rgb->r16, (uint16_t*)src_rgb_1->r16, (uint16_t*)src_rgb_2->r16, alpha);
+	overlay_one_color_MMX(dst_rgb->g16, (uint16_t*)src_rgb_1->g16, (uint16_t*)src_rgb_2->g16, alpha);
+	overlay_one_color_MMX(dst_rgb->b16, (uint16_t*)src_rgb_1->b16, (uint16_t*)src_rgb_2->b16, alpha);
 }
 
 void AVX::alpha_blend(const RGB* dst_rgb, const RGB* src_rgb, const uint8_t alpha) {

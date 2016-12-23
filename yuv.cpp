@@ -9,6 +9,36 @@
 
 #include "yuv.h"
 
+void YUV::u8_to_s16() const {
+	for (int i = 0; i < width * height; i++) {
+		this->y16[i] = (int16_t)this->y_ptr[i];
+		this->u16[i] = (int16_t)this->u_ptr[i];
+		this->v16[i] = (int16_t)this->v_ptr[i];
+	}
+}
+
+namespace {
+	_forceinline inline uint8_t format(int16_t input) {
+		if (input > 255) {
+			return (uint8_t)255;
+		}
+		if (input < 0) {
+			return (uint8_t)0;
+		}
+		return (uint8_t)input;
+	}
+}
+
+void YUV::s16_to_u8() const {
+	for (int i = 0; i < width * height; i++) {
+		this->y_ptr[i] = format(this->y16[i]);
+	}
+	for (int i = 0; i < width * height / 4; i++) {
+		this->u_ptr[i] = format(this->u16[i]);
+		this->v_ptr[i] = format(this->v16[i]);
+	}
+}
+
 int YUV::read_file(const char* file_name) const {
 	FILE * fp;
 	if ((fp = fopen(file_name, "rb")) == NULL) return -1;

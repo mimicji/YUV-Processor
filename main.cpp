@@ -74,7 +74,7 @@ int main() {
 		clock_t recuit_time = clock();
 		//MMX::alpha_blend(dst_rgb, tmp_rgb, alpha);
 		MMX::image_overlay(dst_rgb, tmp_rgb, tmp_rgb2, alpha);
-		rgb2yuv(dst_yuv, dst_rgb);
+		MMX::rgb2yuv(dst_yuv, dst_rgb);
 		total_time += clock() - recuit_time;
 		dst_yuv->write(fout);
 		dst_rgb->clean();
