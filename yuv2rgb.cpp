@@ -2,7 +2,7 @@
 //	Name: yuv2rgb.cpp
 //	Description: Computer Architecture Lab4.1
 //	Author: Kaihang JI
-//	Last Edit: 12/23/2016 22:48
+//	Last Edit: 12/24/2016 01:18
 //	All rights reserved.
 //==============================================
 
@@ -157,8 +157,134 @@ void MMX::yuv2rgb(const RGB* dst_rgb, const YUV* src_yuv) {
 	dst_rgb->s16_to_u8();
 }
 
+namespace AVX {
+	int16_t tmp_u[WIDTH*HEIGHT];
+	int16_t tmp_v[WIDTH*HEIGHT];
+	static const int16_t YUV_R[3] = { 0.164383 * (1 << 16),  0.017232 * (1 << 16),	       0 * (1 << 16) }; // offset: -1 -2 0
+	static const int16_t YUV_G[3] = { 0.164383 * (1 << 16), -0.391762 * (1 << 16), -0.312968 * (1 << 16) }; // offset: -1 0 +0.5
+	static const int16_t YUV_B[3] = { 0.164383 * (1 << 16),         0 * (1 << 16),  0.096027 * (1 << 16) }; // offset: -1 0 -1.5
+	static const __m256i OFFSET_128 = _mm256_set_epi16(128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128);
+	static const __m256i OFFSET_16 = _mm256_set_epi16(16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16);
+}
+
 void AVX::yuv2rgb(const RGB* dst_rgb, const YUV* src_yuv) {
-	// TODO
+	src_yuv->u8_to_s16();
+	int i, j, k;
+	__m256i tmp, tmp_data;
+	for (i = 0, k = 0; i < dst_rgb->getHeight(); ++i) {
+		for (j = 0; j < dst_rgb->getWidth(); ++j, ++k) {
+			int loc = (i / 2)*dst_rgb->getWidth() / 2 + (j / 2);
+			tmp_u[k] = src_yuv->u16[loc];
+			tmp_v[k] = src_yuv->v16[loc];
+		}
+	}
+
+	_mm_empty();
+
+	// YUV to R Channel
+	__m256i* dst = (__m256i*) dst_rgb->r16;
+	__m256i* src_y = (__m256i*)src_yuv->y16;
+	__m256i* src_u = (__m256i*)tmp_u;
+	__m256i* src_v = (__m256i*)tmp_v;
+	const __m256i Y_R = _mm256_set_epi16(YUV_R[0], YUV_R[0], YUV_R[0], YUV_R[0], YUV_R[0], YUV_R[0], YUV_R[0], YUV_R[0], YUV_R[0], YUV_R[0], YUV_R[0], YUV_R[0], YUV_R[0], YUV_R[0], YUV_R[0], YUV_R[0]);
+	const __m256i U_R = _mm256_set_epi16(YUV_R[1], YUV_R[1], YUV_R[1], YUV_R[1], YUV_R[1], YUV_R[1], YUV_R[1], YUV_R[1], YUV_R[1], YUV_R[1], YUV_R[1], YUV_R[1], YUV_R[1], YUV_R[1], YUV_R[1], YUV_R[1]);
+	const __m256i V_R = _mm256_set_epi16(YUV_R[2], YUV_R[2], YUV_R[2], YUV_R[2], YUV_R[2], YUV_R[2], YUV_R[2], YUV_R[2], YUV_R[2], YUV_R[2], YUV_R[2], YUV_R[2], YUV_R[2], YUV_R[2], YUV_R[2], YUV_R[2]);
+	for (i = 0; i < dst_rgb->height * dst_rgb->width / 16; i++) {
+		// Y Channel to R Channel
+		tmp_data = _mm256_subs_epi16(*src_y, OFFSET_16);	// (Y - 16)
+		tmp = _mm256_mulhi_epi16(tmp_data, Y_R);			// R = (Y - 16) * 0.164383
+		*dst = _mm256_adds_epi16(tmp, tmp_data);			// R += Y - 16
+		
+		// U Channel to R Channel
+		tmp_data = _mm256_subs_epi16(*src_u, OFFSET_128);	// (U - 128)
+		tmp = _mm256_mulhi_epi16(tmp_data, U_R);			// (U - 128) * 0.017232
+		*dst = _mm256_adds_epi16(*dst, tmp);				// R += (U - 128) * 0.017232
+		tmp = _mm256_slli_epi16(tmp_data, 1);
+		*dst = _mm256_adds_epi16(*dst, tmp);				// R += (U - 128) << 1;
+
+		// V Channel to R Channel
+
+
+		// increase iterators
+		dst++;
+		src_y++;
+		src_u++;
+		src_v++;
+	}
+	// End of YUV to R Channel
+
+	// YUV to G Channel
+	dst = (__m256i*) dst_rgb->g16;
+	src_y = (__m256i*)src_yuv->y16;
+	src_u = (__m256i*)tmp_u;
+	src_v = (__m256i*)tmp_v;
+	const __m256i Y_G = _mm256_set_epi16(YUV_G[0], YUV_G[0], YUV_G[0], YUV_G[0], YUV_G[0], YUV_G[0], YUV_G[0], YUV_G[0], YUV_G[0], YUV_G[0], YUV_G[0], YUV_G[0], YUV_G[0], YUV_G[0], YUV_G[0], YUV_G[0]);
+	const __m256i U_G = _mm256_set_epi16(YUV_G[1], YUV_G[1], YUV_G[1], YUV_G[1], YUV_G[1], YUV_G[1], YUV_G[1], YUV_G[1], YUV_G[1], YUV_G[1], YUV_G[1], YUV_G[1], YUV_G[1], YUV_G[1], YUV_G[1], YUV_G[1]);
+	const __m256i V_G = _mm256_set_epi16(YUV_G[2], YUV_G[2], YUV_G[2], YUV_G[2], YUV_G[2], YUV_G[2], YUV_G[2], YUV_G[2], YUV_G[2], YUV_G[2], YUV_G[2], YUV_G[2], YUV_G[2], YUV_G[2], YUV_G[2], YUV_G[2]);
+	for (i = 0; i < dst_rgb->height * dst_rgb->width / 16; i++) {
+		// Y Channel to G Channel
+		tmp_data = _mm256_subs_epi16(*src_y, OFFSET_16);	// (Y - 16)
+		tmp = _mm256_mulhi_epi16(tmp_data, Y_G);			// G = (Y - 16) * 0.164383
+		*dst = _mm256_adds_epi16(tmp, tmp_data);			// G += Y - 16
+
+		// U Channel to G Channel
+		tmp_data = _mm256_subs_epi16(*src_u, OFFSET_128);	// (U - 128)
+		tmp = _mm256_mulhi_epi16(tmp_data, U_G);			// (U - 128) * (-0.391762)
+		*dst = _mm256_adds_epi16(*dst, tmp);				// G += (U - 128) * (-0.391762)
+
+		// V Channel to R Channel
+		tmp_data = _mm256_subs_epi16(*src_v, OFFSET_128);	// (V - 128)
+		tmp = _mm256_mulhi_epi16(tmp_data, V_G);			// (V - 128) * (-0.312968)
+		*dst = _mm256_adds_epi16(*dst, tmp);				// G += (V - 128) * (-0.312968)
+		tmp = _mm256_srai_epi16(tmp_data, 1);
+		*dst = _mm256_subs_epi16(*dst, tmp);				// G -= (V - 128) >> 1;
+
+		// increase iterators
+		dst++;
+		src_y++;
+		src_u++;
+		src_v++;
+	}
+	// End of YUV to G Channel
+
+	// YUV to B Channel
+	dst = (__m256i*) dst_rgb->b16;
+	src_y = (__m256i*)src_yuv->y16;
+	src_u = (__m256i*)tmp_u;
+	src_v = (__m256i*)tmp_v;
+	const __m256i Y_B = _mm256_set_epi16(YUV_B[0], YUV_B[0], YUV_B[0], YUV_B[0], YUV_B[0], YUV_B[0], YUV_B[0], YUV_B[0], YUV_B[0], YUV_B[0], YUV_B[0], YUV_B[0], YUV_B[0], YUV_B[0], YUV_B[0], YUV_B[0]);
+	const __m256i U_B = _mm256_set_epi16(YUV_B[1], YUV_B[1], YUV_B[1], YUV_B[1], YUV_B[1], YUV_B[1], YUV_B[1], YUV_B[1], YUV_B[1], YUV_B[1], YUV_B[1], YUV_B[1], YUV_B[1], YUV_B[1], YUV_B[1], YUV_B[1]);
+	const __m256i V_B = _mm256_set_epi16(YUV_B[2], YUV_B[2], YUV_B[2], YUV_B[2], YUV_B[2], YUV_B[2], YUV_B[2], YUV_B[2], YUV_B[2], YUV_B[2], YUV_B[2], YUV_B[2], YUV_B[2], YUV_B[2], YUV_B[2], YUV_B[2]);
+	for (i = 0; i < dst_rgb->height * dst_rgb->width / 16; i++) {
+		// Y Channel to B Channel
+		tmp_data = _mm256_subs_epi16(*src_y, OFFSET_16);	// (Y - 16)
+		tmp = _mm256_mulhi_epi16(tmp_data, Y_B);			// B = (Y - 16) * 0.164383
+		*dst = _mm256_adds_epi16(tmp, tmp_data);			// B += Y - 16
+
+		// U Channel to B Channel
+
+
+		// V Channel to B Channel
+		tmp_data = _mm256_subs_epi16(*src_v, OFFSET_128);	// (V - 128)
+		tmp = _mm256_mulhi_epi16(tmp_data, V_B);			// (V - 128) * 0.096027
+		*dst = _mm256_adds_epi16(*dst, tmp);				// B += (V - 128) * 0.096027
+		tmp = _mm256_srai_epi16(tmp_data, 1);
+		*dst = _mm256_adds_epi16(*dst, tmp);				// G += (V - 128) >> 1;
+		tmp = _mm256_slli_epi16(tmp_data, 1);
+		*dst = _mm256_adds_epi16(*dst, tmp);				// G += (V - 128) << 1;
+
+		// increase iterators
+		dst++;
+		src_y++;
+		src_u++;
+		src_v++;
+	}
+	// End of YUV to B Channel
+
+	_mm_empty();
+
+	dst_rgb->boundCheck();
+	dst_rgb->s16_to_u8();
 }
 
 namespace SSE {
@@ -169,7 +295,6 @@ namespace SSE {
 	static const int16_t YUV_B[3] = { 0.164383 * (1 << 16),         0 * (1 << 16),  0.096027 * (1 << 16) }; // offset: -1 0 -1.5
 	static const __m128i OFFSET_128 = _mm_set_epi16(128, 128, 128, 128, 128, 128, 128, 128);
 	static const __m128i OFFSET_16 = _mm_set_epi16(16, 16, 16, 16, 16, 16, 16, 16);
-
 }
 
 void SSE::yuv2rgb(const RGB* dst_rgb, const YUV* src_yuv) {
@@ -262,23 +387,23 @@ void SSE::yuv2rgb(const RGB* dst_rgb, const YUV* src_yuv) {
 	const __m128i V_B = _mm_set_epi16(YUV_B[2], YUV_B[2], YUV_B[2], YUV_B[2], YUV_B[2], YUV_B[2], YUV_B[2], YUV_B[2]);
 	for (i = 0; i < dst_rgb->height * dst_rgb->width / 8; i++) {
 		// Y Channel to B Channel
-		tmp_data = _mm_subs_epi16(*src_y, OFFSET_16); // (Y - 16)
+		tmp_data = _mm_subs_epi16(*src_y, OFFSET_16);	// (Y - 16)
 		tmp = _mm_mulhi_epi16(tmp_data, Y_B);			// B = (Y - 16) * 0.164383
-		*dst = _mm_adds_epi16(tmp, tmp_data);		// B += Y - 16
+		*dst = _mm_adds_epi16(tmp, tmp_data);			// B += Y - 16
 
 		// U Channel to B Channel
 
 
 		// V Channel to B Channel
-		tmp_data = _mm_subs_epi16(*src_v, OFFSET_128);// (V - 128)
+		tmp_data = _mm_subs_epi16(*src_v, OFFSET_128);	// (V - 128)
 		tmp = _mm_mulhi_epi16(tmp_data, V_B);			// (V - 128) * 0.096027
-		*dst = _mm_adds_epi16(*dst, tmp);			// B += (V - 128) * 0.096027
+		*dst = _mm_adds_epi16(*dst, tmp);				// B += (V - 128) * 0.096027
 		tmp = _mm_srai_epi16(tmp_data, 1);
-		*dst = _mm_adds_epi16(*dst, tmp);			// G += (V - 128) >> 1;
+		*dst = _mm_adds_epi16(*dst, tmp);				// G += (V - 128) >> 1;
 		tmp = _mm_slli_epi16(tmp_data, 1);
-		*dst = _mm_adds_epi16(*dst, tmp);			// G += (V - 128) << 1;
+		*dst = _mm_adds_epi16(*dst, tmp);				// G += (V - 128) << 1;
 
-												// increase iterators
+		// increase iterators
 		dst++;
 		src_y++;
 		src_u++;

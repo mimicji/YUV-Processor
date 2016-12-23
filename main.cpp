@@ -2,7 +2,7 @@
 //	Name: main.cpp
 //	Description: Computer Architecture Lab4.1
 //	Author: Kaihang JI
-//	Last Edit: 12/23/2016 22:48
+//	Last Edit: 12/24/2016 01:18
 //	All rights reserved. Only for Win32. 
 //==============================================
 
@@ -14,15 +14,17 @@
  *	Non_Simd : 
  *		Run the program with no special instruction set.
  *	MMX :
- *		Run the program with MMX. Certainly it will be more
+ *		Run the program with MMX. Certainly, it will be more
  *		efficient than Non_Simd. This part requires mmintrin.h.
  *	AVX :
- *		(TODO)HAVEN'T FINISH THIS PART.
- *		Run the program with AVX.
+ *		Run the program with AVX. Technically, it will be most
+ *		efficient. This part requires immintrin.h.
  *	SSE :
- *		Run the program with SSE2. This part requires emmintrin.h.
+ *		Run the program with SSE2. Technically, it will be more
+ *		efficient than MMX but less than AVX. This part requires
+ *		emmintrin.h.
  */
-using namespace SSE;
+using namespace AVX;
 
 /**
  * Choose the program function. If you want to alpha_blending,

@@ -2,7 +2,7 @@
 //	Name: rgb2yuv.cpp
 //	Description: Computer Architecture Lab4.1
 //	Author: Kaihang JI
-//	Last Edit: 12/23/2016 22:48
+//	Last Edit: 12/24/2016 01:18
 //	All rights reserved. Only for Win32. 
 //==============================================
 
@@ -164,8 +164,132 @@ void MMX::rgb2yuv(const YUV* dst_yuv, const RGB* src_rgb) {
 	// End of function
 }
 
+namespace AVX {
+	int16_t tmp_r[WIDTH * HEIGHT / 4];
+	int16_t tmp_g[WIDTH * HEIGHT / 4];
+	int16_t tmp_b[WIDTH * HEIGHT / 4];
+	static const int16_t RGB_Y[3] = { 0.256788 * (1 << 16),  0.004129 * (1 << 16),  0.097906 * (1 << 16) }; // offset: 0 -0.5 0
+	static const int16_t RGB_U[3] = { 0.439216 * (1 << 16), -0.367788 * (1 << 16), -0.071427 * (1 << 16) }; // offset: 0 0 0
+	static const int16_t RGB_V[3] = { -0.148223 * (1 << 16), -0.290993 * (1 << 16),  0.439216 * (1 << 16) }; // offset: 0 0 0
+	static const __m256i OFFSET_128 = _mm256_set_epi16(128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128);
+	static const __m256i OFFSET_16 = _mm256_set_epi16(16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16);
+}
+
 void AVX::rgb2yuv(const YUV* dst_yuv, const RGB* src_rgb) {
-	// TODO
+	int i, j, k;
+	__m256i tmp;
+
+
+	_mm_empty();
+
+	// RGB to Y Channel
+	__m256i* dst = (__m256i*) dst_yuv->y16;
+	__m256i* src_r = (__m256i*)src_rgb->r16;
+	__m256i* src_g = (__m256i*)src_rgb->g16;
+	__m256i* src_b = (__m256i*)src_rgb->b16;
+	const __m256i R_Y = _mm256_set_epi16(RGB_Y[0], RGB_Y[0], RGB_Y[0], RGB_Y[0], RGB_Y[0], RGB_Y[0], RGB_Y[0], RGB_Y[0], RGB_Y[0], RGB_Y[0], RGB_Y[0], RGB_Y[0], RGB_Y[0], RGB_Y[0], RGB_Y[0], RGB_Y[0]);
+	const __m256i G_Y = _mm256_set_epi16(RGB_Y[1], RGB_Y[1], RGB_Y[1], RGB_Y[1], RGB_Y[1], RGB_Y[1], RGB_Y[1], RGB_Y[1], RGB_Y[1], RGB_Y[1], RGB_Y[1], RGB_Y[1], RGB_Y[1], RGB_Y[1], RGB_Y[1], RGB_Y[1]);
+	const __m256i B_Y = _mm256_set_epi16(RGB_Y[2], RGB_Y[2], RGB_Y[2], RGB_Y[2], RGB_Y[2], RGB_Y[2], RGB_Y[2], RGB_Y[2], RGB_Y[2], RGB_Y[2], RGB_Y[2], RGB_Y[2], RGB_Y[2], RGB_Y[2], RGB_Y[2], RGB_Y[2]);
+	for (i = 0; i < dst_yuv->height * dst_yuv->width / 16; i++) {
+		// R Channel to Y Channel
+		*dst = _mm256_mulhi_epi16(*src_r, R_Y); // Y = R * 0.256788
+
+		// G Channel to Y Channel
+		tmp = _mm256_mulhi_epi16(*src_g, G_Y);
+		*dst = _mm256_adds_epi16(tmp, *dst);	// Y += G * 0.004129
+		tmp = _mm256_srli_epi16(*src_g, 1);
+		*dst = _mm256_adds_epi16(tmp, *dst);	// Y += G >> 1;
+
+		// B Channel to Y Channel
+		tmp = _mm256_mulhi_epi16(*src_b, B_Y);
+		*dst = _mm256_adds_epi16(tmp, *dst);	// Y += B * 0.097906
+
+		// Add offset
+		*dst = _mm256_adds_epi16(*dst, OFFSET_16); // Y += 16
+
+		// increase iterators
+		dst++;
+		src_r++;
+		src_g++;
+		src_b++;
+	}
+	// End of RGB to Y Channel
+
+
+
+	for (i = 0, k = 0; i < dst_yuv->height; i += 2) {
+		for (j = 0; j < dst_yuv->width; j += 2, ++k) {
+			tmp_r[k] = src_rgb->r16[i * dst_yuv->width + j];
+			tmp_g[k] = src_rgb->g16[i * dst_yuv->width + j];
+			tmp_b[k] = src_rgb->b16[i * dst_yuv->width + j];
+		}
+	}
+
+	// RGB to U Channel
+	dst = (__m256i*) dst_yuv->u16;
+	src_r = (__m256i*) tmp_r;
+	src_g = (__m256i*) tmp_g;
+	src_b = (__m256i*) tmp_b;
+	const __m256i R_U = _mm256_set_epi16(RGB_U[0], RGB_U[0], RGB_U[0], RGB_U[0], RGB_U[0], RGB_U[0], RGB_U[0], RGB_U[0], RGB_U[0], RGB_U[0], RGB_U[0], RGB_U[0], RGB_U[0], RGB_U[0], RGB_U[0], RGB_U[0]);
+	const __m256i G_U = _mm256_set_epi16(RGB_U[1], RGB_U[1], RGB_U[1], RGB_U[1], RGB_U[1], RGB_U[1], RGB_U[1], RGB_U[1], RGB_U[1], RGB_U[1], RGB_U[1], RGB_U[1], RGB_U[1], RGB_U[1], RGB_U[1], RGB_U[1]);
+	const __m256i B_U = _mm256_set_epi16(RGB_U[2], RGB_U[2], RGB_U[2], RGB_U[2], RGB_U[2], RGB_U[2], RGB_U[2], RGB_U[2], RGB_U[2], RGB_U[2], RGB_U[2], RGB_U[2], RGB_U[2], RGB_U[2], RGB_U[2], RGB_U[2]);
+	for (i = 0; i < WIDTH * HEIGHT / 64; i++) {
+		// R Channel to U Channel
+		*dst = _mm256_mulhi_epi16(*src_r, R_U);		// U = R * 0.439216
+
+		// G Channel to U Channel
+		tmp = _mm256_mulhi_epi16(*src_g, G_U);
+		*dst = _mm256_adds_epi16(tmp, *dst);		// U += G * (-0.367788)
+
+		// B Channel to U Channel
+		tmp = _mm256_mulhi_epi16(*src_b, B_U);
+		*dst = _mm256_adds_epi16(tmp, *dst);		// U += B * (-0.071427)
+
+		// Add offset
+		*dst = _mm256_adds_epi16(*dst, OFFSET_128); // U += 128
+
+		// increase iterators
+		dst++;
+		src_r++;
+		src_g++;
+		src_b++;
+	}
+	// End of RGB to U Channel
+
+	// RGB to V Channel
+	dst = (__m256i*) dst_yuv->v16;
+	src_r = (__m256i*) tmp_r;
+	src_g = (__m256i*) tmp_g;
+	src_b = (__m256i*) tmp_b;
+	const __m256i R_V = _mm256_set_epi16(RGB_V[0], RGB_V[0], RGB_V[0], RGB_V[0], RGB_V[0], RGB_V[0], RGB_V[0], RGB_V[0], RGB_V[0], RGB_V[0], RGB_V[0], RGB_V[0], RGB_V[0], RGB_V[0], RGB_V[0], RGB_V[0]);
+	const __m256i G_V = _mm256_set_epi16(RGB_V[1], RGB_V[1], RGB_V[1], RGB_V[1], RGB_V[1], RGB_V[1], RGB_V[1], RGB_V[1], RGB_V[1], RGB_V[1], RGB_V[1], RGB_V[1], RGB_V[1], RGB_V[1], RGB_V[1], RGB_V[1]);
+	const __m256i B_V = _mm256_set_epi16(RGB_V[2], RGB_V[2], RGB_V[2], RGB_V[2], RGB_V[2], RGB_V[2], RGB_V[2], RGB_V[2], RGB_V[2], RGB_V[2], RGB_V[2], RGB_V[2], RGB_V[2], RGB_V[2], RGB_V[2], RGB_V[2]);
+	for (i = 0; i < WIDTH * HEIGHT / 64; i++) {
+		// R Channel to V Channel
+		*dst = _mm256_mulhi_epi16(*src_r, R_V); // V = R * (-0.148223)
+
+		// G Channel to V Channel
+		tmp = _mm256_mulhi_epi16(*src_g, G_V);
+		*dst = _mm256_adds_epi16(tmp, *dst); // V += G * (-0.290993)
+
+		// B Channel to V Channel
+		tmp = _mm256_mulhi_epi16(*src_b, B_V);
+		*dst = _mm256_adds_epi16(tmp, *dst); // V += B * (0.439216)
+
+		// Add offset
+		*dst = _mm256_adds_epi16(*dst, OFFSET_128); // V += 128
+
+		// increase iterators
+		dst++;
+		src_r++;
+		src_g++;
+		src_b++;
+	}
+	// End of RGB to V Channel
+
+	_mm_empty();
+	dst_yuv->s16_to_u8();
+	// End of function
 }
 
 namespace SSE {

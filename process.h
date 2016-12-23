@@ -9,7 +9,7 @@
 // Header for MMX
 #include <mmintrin.h> 
 // Header for AVX
-#include <xmmintrin.h>
+#include <immintrin.h>
 // Header for SSE2
 #include <emmintrin.h>
 
