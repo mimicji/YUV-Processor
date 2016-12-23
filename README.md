@@ -7,7 +7,7 @@ Mainly it has two functions:
 - Fade in and fade out one image.
 - Create a gradient which overlays two images.
 
-To choose an Instruction Set, choose a namespace from Non_Simd / MMX / AVX / SSE. See more in main.cpp.
+To choose an Instruction Set, choose a namespace from Non_Simd / MMX / AVX / SSE.
 
 Happy feast of winter veil!
 

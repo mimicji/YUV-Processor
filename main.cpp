@@ -20,16 +20,15 @@
  *		(TODO)HAVEN'T FINISH THIS PART.
  *		Run the program with AVX.
  *	SSE :
- *		(TODO)HAVEN'T FINISH THIS PART.
- *		Run the program with SSE2.
+ *		Run the program with SSE2. This part requires emmintrin.h.
  */
-using namespace MMX;
+using namespace SSE;
 
 /**
  * Choose the program function. If you want to alpha_blending,
  * then define ALPHA_BLENDING. Otherwise, undefine it.
  */
-//#define ALPHA_BLENDING
+#define ALPHA_BLENDING
 
 /**
  * Select your file path. 
@@ -44,7 +43,7 @@ using namespace MMX;
  *		It is the path of the output YUV file.
  * OUTPUT_BMP :
  *		It is the path of the output BMP file. See BMP_OUT for
- *		in main.cpp and RGB::write_bmp() in rgb.cpp for more detials.
+ *		in main.cpp and RGB::write_bmp in rgb.cpp for more detials.
  */
 #define INPUT_YUV_1 "D:\\dem1.yuv"
 #define INPUT_YUV_2 "D:\\dem2.yuv"

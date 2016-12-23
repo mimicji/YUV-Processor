@@ -3,12 +3,16 @@
 //	Description: Computer Architecture Lab4.1
 //	Author: Kaihang JI
 //	Last Edit: 12/19/2016 19:01
-//	All rights reserved.. 
+//	All rights reserved.
 //==============================================
 
-#include <mmintrin.h>
+// Header for MMX
+#include <mmintrin.h> 
+// Header for AVX
 #include <xmmintrin.h>
+// Header for SSE2
 #include <emmintrin.h>
+
 #include <time.h>
 #include <fstream>
 #include "rgb.h"
