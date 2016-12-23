@@ -3,7 +3,7 @@
 //	Description: Computer Architecture Lab4.1
 //	Author: Kaihang JI
 //	Last Edit: 12/19/2016 19:01
-//	All rights reserved. Only for Windows. 
+//	All rights reserved.
 //==============================================
 
 #include <cstdint>
@@ -15,9 +15,9 @@ class YUV {
 public:
 	int32_t width;
 	int32_t height;
-	uint8_t* y_ptr;
-	uint8_t* u_ptr;
-	uint8_t* v_ptr;
+	uint8_t* y8;
+	uint8_t* u8;
+	uint8_t* v8;
 	int16_t* y16;
 	int16_t* u16;
 	int16_t* v16;
@@ -25,9 +25,9 @@ public:
 	YUV(int32_t _width, int32_t _height) {
 		width = _width;
 		height = _height;
-		y_ptr = new uint8_t[width * height];
-		u_ptr = new uint8_t[width * height / 4];
-		v_ptr = new uint8_t[width * height / 4];
+		y8 = new uint8_t[width * height];
+		u8 = new uint8_t[width * height / 4];
+		v8 = new uint8_t[width * height / 4];
 		y16 = new int16_t[width * height];
 		u16 = new int16_t[width * height / 4];
 		v16 = new int16_t[width * height / 4];
@@ -35,9 +35,9 @@ public:
 	}
 
 	~YUV() {
-		delete[] y_ptr;
-		delete[] u_ptr;
-		delete[] v_ptr;
+		delete[] y8;
+		delete[] u8;
+		delete[] v8;
 		delete[] y16;
 		delete[] u16;
 		delete[] v16;
@@ -52,3 +52,4 @@ public:
 	int32_t getHeight() const;
 
 };
+// End of yuv.h

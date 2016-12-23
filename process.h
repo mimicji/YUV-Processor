@@ -3,14 +3,20 @@
 //	Description: Computer Architecture Lab4.1
 //	Author: Kaihang JI
 //	Last Edit: 12/19/2016 19:01
-//	All rights reserved. Only for Windows. 
+//	All rights reserved.. 
 //==============================================
 
 #include <mmintrin.h>
 #include <xmmintrin.h>
 #include <emmintrin.h>
+#include <time.h>
+#include <fstream>
 #include "rgb.h"
 #include "yuv.h"
+
+using std::cerr;
+using std::endl;
+
 #define WIDTH 1920
 #define HEIGHT 1080
 
@@ -41,3 +47,4 @@ namespace SSE {
 	void alpha_blend(const RGB* dst_rgb, const RGB* src_rgb, const uint8_t alpha);
 	void image_overlay(const RGB* dst_rgb, const RGB* src_rgb_1, const RGB* src_rgb_2, const uint8_t alpha);
 }
+// End of process.h

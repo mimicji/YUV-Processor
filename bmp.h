@@ -44,3 +44,4 @@ typedef struct tagBITMAPINFOHEADER
 	DWORD biClrImportant = 0;///////位图显示过程中重要的颜色数，若该值为0,则所有的颜色都重要
 }t_BMPinfoheader;
 #pragma pack()//////////////////取消自定义字节方式
+// End of bmp.h

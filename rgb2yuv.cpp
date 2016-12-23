@@ -2,8 +2,8 @@
 //	Name: rgb2yuv.cpp
 //	Description: Computer Architecture Lab4.1
 //	Author: Kaihang JI
-//	Last Edit: 12/19/2016 23:37
-//	All rights reserved. Only for Windows. 
+//	Last Edit: 12/23/2016 22:48
+//	All rights reserved. Only for Win32. 
 //==============================================
 
 
@@ -23,24 +23,29 @@ _forceinline inline uint8_t format(int16_t input) {
 void Non_Simd::rgb2yuv(const YUV* dst_yuv, const RGB* src_rgb) {
 	int i;
 	for (i = 0; i < dst_yuv->height * dst_yuv->width; i++) {
-			dst_yuv->y_ptr[i] = format(0.256788 * src_rgb->r_ptr[i] + 0.504129 * src_rgb->g_ptr[i] + 0.097906 * src_rgb->b_ptr[i] +16);
+			dst_yuv->y8[i] = format(0.256788 * src_rgb->r8[i] + 0.504129 * src_rgb->g8[i] + 0.097906 * src_rgb->b8[i] +16);
 	}
 	int j, k=0;
 	for (i = 0; i < dst_yuv->height; i+=2) {
 		for (j = 0; j < dst_yuv->width; j+=2) {
-			dst_yuv->v_ptr[k] = format(-0.148223 * src_rgb->r_ptr[i * dst_yuv->width + j] - 0.290993 * src_rgb->g_ptr[i * dst_yuv->width + j] + 0.439216 * src_rgb->b_ptr[i * dst_yuv->width + j] + 128);
-			dst_yuv->u_ptr[k] = format( 0.439216 * src_rgb->r_ptr[i * dst_yuv->width + j] - 0.367788 * src_rgb->g_ptr[i * dst_yuv->width + j] - 0.071427 * src_rgb->b_ptr[i * dst_yuv->width + j] + 128);
+			dst_yuv->v8[k] = format(-0.148223 * src_rgb->r8[i * dst_yuv->width + j] - 0.290993 * src_rgb->g8[i * dst_yuv->width + j] + 0.439216 * src_rgb->b8[i * dst_yuv->width + j] + 128);
+			dst_yuv->u8[k] = format( 0.439216 * src_rgb->r8[i * dst_yuv->width + j] - 0.367788 * src_rgb->g8[i * dst_yuv->width + j] - 0.071427 * src_rgb->b8[i * dst_yuv->width + j] + 128);
 			++k;
 		}
 	}
 }
 
-int16_t tmp_r[WIDTH * HEIGHT / 4];
-int16_t tmp_g[WIDTH * HEIGHT / 4];
-int16_t tmp_b[WIDTH * HEIGHT / 4];
-static const int16_t RGB_Y[3] = { 0.256788 * (1 << 16),  0.004129 * (1 << 16),  0.097906 * (1 << 16) }; // offset: 0 -0.5 0
-static const int16_t RGB_U[3] = { 0.439216 * (1 << 16), -0.367788 * (1 << 16), -0.071427 * (1 << 16) }; // offset: 0 0 0
-static const int16_t RGB_V[3] = { -0.148223 * (1 << 16), -0.290993 * (1 << 16),  0.439216 * (1 << 16) }; // offset: 0 0 0
+namespace MMX {
+	int16_t tmp_r[WIDTH * HEIGHT / 4];
+	int16_t tmp_g[WIDTH * HEIGHT / 4];
+	int16_t tmp_b[WIDTH * HEIGHT / 4];
+	static const int16_t RGB_Y[3] = { 0.256788 * (1 << 16),  0.004129 * (1 << 16),  0.097906 * (1 << 16) }; // offset: 0 -0.5 0
+	static const int16_t RGB_U[3] = { 0.439216 * (1 << 16), -0.367788 * (1 << 16), -0.071427 * (1 << 16) }; // offset: 0 0 0
+	static const int16_t RGB_V[3] = { -0.148223 * (1 << 16), -0.290993 * (1 << 16),  0.439216 * (1 << 16) }; // offset: 0 0 0
+	static const __m64 OFFSET_128 = _mm_set_pi16(128, 128, 128, 128);
+	static const __m64 OFFSET_16 = _mm_set_pi16(16, 16, 16, 16);
+}
+
 void MMX::rgb2yuv(const YUV* dst_yuv, const RGB* src_rgb) {
 
 	int i, j, k;
@@ -57,7 +62,6 @@ void MMX::rgb2yuv(const YUV* dst_yuv, const RGB* src_rgb) {
 	const __m64 R_Y = _mm_set_pi16(RGB_Y[0], RGB_Y[0], RGB_Y[0], RGB_Y[0]);
 	const __m64 G_Y = _mm_set_pi16(RGB_Y[1], RGB_Y[1], RGB_Y[1], RGB_Y[1]);
 	const __m64 B_Y = _mm_set_pi16(RGB_Y[2], RGB_Y[2], RGB_Y[2], RGB_Y[2]);
-	const __m64 OFFSET_16 = _mm_set_pi16(16, 16, 16, 16);
 	for (i = 0; i < dst_yuv->height * dst_yuv->width / 4; i++) {
 		// R Channel to Y Channel
 		*dst = _m_pmulhw(*src_r, R_Y); // Y = R * 0.256788
@@ -101,7 +105,6 @@ void MMX::rgb2yuv(const YUV* dst_yuv, const RGB* src_rgb) {
 	const __m64 R_U = _mm_set_pi16(RGB_U[0], RGB_U[0], RGB_U[0], RGB_U[0]);
 	const __m64 G_U = _mm_set_pi16(RGB_U[1], RGB_U[1], RGB_U[1], RGB_U[1]);
 	const __m64 B_U = _mm_set_pi16(RGB_U[2], RGB_U[2], RGB_U[2], RGB_U[2]);
-	const __m64 OFFSET_128 = _mm_set_pi16(128, 128, 128, 128);
 	for (i = 0; i < WIDTH * HEIGHT / 16; i++) {
 		// R Channel to U Channel
 		*dst = _m_pmulhw(*src_r, R_U); // U = R * 0.439216
@@ -168,3 +171,4 @@ void AVX::rgb2yuv(const YUV* dst_yuv, const RGB* src_rgb) {
 void SSE::rgb2yuv(const YUV* dst_yuv, const RGB* src_rgb) {
 	// TODO
 }
+// End of rgb2yuv.cpp
