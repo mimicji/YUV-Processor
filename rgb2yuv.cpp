@@ -39,9 +39,9 @@ namespace MMX {
 	int16_t tmp_r[WIDTH * HEIGHT / 4];
 	int16_t tmp_g[WIDTH * HEIGHT / 4];
 	int16_t tmp_b[WIDTH * HEIGHT / 4];
-	static const int16_t RGB_Y[3] = { 0.256788 * (1 << 16),  0.004129 * (1 << 16),  0.097906 * (1 << 16) }; // offset: 0 -0.5 0
-	static const int16_t RGB_U[3] = { 0.439216 * (1 << 16), -0.367788 * (1 << 16), -0.071427 * (1 << 16) }; // offset: 0 0 0
-	static const int16_t RGB_V[3] = { -0.148223 * (1 << 16), -0.290993 * (1 << 16),  0.439216 * (1 << 16) }; // offset: 0 0 0
+	static const int16_t RGB_Y[3] = { int16_t(0.256788 * (1 << 16)),  int16_t(0.004129 * (1 << 16)),  int16_t(0.097906 * (1 << 16)) }; // offset: 0 -0.5 0
+	static const int16_t RGB_U[3] = { int16_t(0.439216 * (1 << 16)),  int16_t(-0.367788 * (1 << 16)), int16_t(-0.071427 * (1 << 16)) }; // offset: 0 0 0
+	static const int16_t RGB_V[3] = { int16_t(-0.148223 * (1 << 16)), int16_t(-0.290993 * (1 << 16)), int16_t(0.439216 * (1 << 16)) }; // offset: 0 0 0
 	static const __m64 OFFSET_128 = _mm_set_pi16(128, 128, 128, 128);
 	static const __m64 OFFSET_16 = _mm_set_pi16(16, 16, 16, 16);
 }
@@ -168,9 +168,9 @@ namespace AVX {
 	int16_t tmp_r[WIDTH * HEIGHT / 4];
 	int16_t tmp_g[WIDTH * HEIGHT / 4];
 	int16_t tmp_b[WIDTH * HEIGHT / 4];
-	static const int16_t RGB_Y[3] = { 0.256788 * (1 << 16),  0.004129 * (1 << 16),  0.097906 * (1 << 16) }; // offset: 0 -0.5 0
-	static const int16_t RGB_U[3] = { 0.439216 * (1 << 16), -0.367788 * (1 << 16), -0.071427 * (1 << 16) }; // offset: 0 0 0
-	static const int16_t RGB_V[3] = { -0.148223 * (1 << 16), -0.290993 * (1 << 16),  0.439216 * (1 << 16) }; // offset: 0 0 0
+	static const int16_t RGB_Y[3] = { int16_t(0.256788 * (1 << 16)),  int16_t(0.004129 * (1 << 16)),  int16_t(0.097906 * (1 << 16)) }; // offset: 0 -0.5 0
+	static const int16_t RGB_U[3] = { int16_t(0.439216 * (1 << 16)), int16_t(-0.367788 * (1 << 16)), int16_t(-0.071427 * (1 << 16)) }; // offset: 0 0 0
+	static const int16_t RGB_V[3] = { int16_t(-0.148223 * (1 << 16)), int16_t(-0.290993 * (1 << 16)),  int16_t(0.439216 * (1 << 16)) }; // offset: 0 0 0
 	static const __m256i OFFSET_128 = _mm256_set_epi16(128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128);
 	static const __m256i OFFSET_16 = _mm256_set_epi16(16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16);
 }
@@ -296,9 +296,9 @@ namespace SSE {
 	int16_t tmp_r[WIDTH * HEIGHT / 4];
 	int16_t tmp_g[WIDTH * HEIGHT / 4];
 	int16_t tmp_b[WIDTH * HEIGHT / 4];
-	static const int16_t RGB_Y[3] = { 0.256788 * (1 << 16),  0.004129 * (1 << 16),  0.097906 * (1 << 16) }; // offset: 0 -0.5 0
-	static const int16_t RGB_U[3] = { 0.439216 * (1 << 16), -0.367788 * (1 << 16), -0.071427 * (1 << 16) }; // offset: 0 0 0
-	static const int16_t RGB_V[3] = { -0.148223 * (1 << 16), -0.290993 * (1 << 16),  0.439216 * (1 << 16) }; // offset: 0 0 0
+	static const int16_t RGB_Y[3] = { int16_t(0.256788 * (1 << 16)),  int16_t(0.004129 * (1 << 16)),  int16_t(0.097906 * (1 << 16)) }; // offset: 0 -0.5 0
+	static const int16_t RGB_U[3] = { int16_t(0.439216 * (1 << 16)), int16_t(-0.367788 * (1 << 16)), int16_t(-0.071427 * (1 << 16)) }; // offset: 0 0 0
+	static const int16_t RGB_V[3] = { int16_t(-0.148223 * (1 << 16)), int16_t(-0.290993 * (1 << 16)),  int16_t(0.439216 * (1 << 16)) }; // offset: 0 0 0
 	static const __m128i OFFSET_128 = _mm_set_epi16(128, 128, 128, 128, 128, 128, 128, 128);
 	static const __m128i OFFSET_16 = _mm_set_epi16(16, 16, 16, 16, 16, 16, 16, 16);
 }

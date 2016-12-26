@@ -29,9 +29,9 @@ void Non_Simd::yuv2rgb(const RGB* dst_rgb, const YUV* src_yuv){
 namespace MMX {
 	int16_t tmp_u[WIDTH*HEIGHT];
 	int16_t tmp_v[WIDTH*HEIGHT];
-	static const int16_t YUV_R[3] = { 0.164383 * (1 << 16),  0.017232 * (1 << 16),	       0 * (1 << 16) }; // offset: -1 -2 0
-	static const int16_t YUV_G[3] = { 0.164383 * (1 << 16), -0.391762 * (1 << 16), -0.312968 * (1 << 16) }; // offset: -1 0 +0.5
-	static const int16_t YUV_B[3] = { 0.164383 * (1 << 16),         0 * (1 << 16),  0.096027 * (1 << 16) }; // offset: -1 0 -1.5
+	static const int16_t YUV_R[3] = { int16_t(0.164383 * (1 << 16)),  int16_t(0.017232 * (1 << 16)),	       0 * (1 << 16) }; // offset: -1 -2 0
+	static const int16_t YUV_G[3] = { int16_t(0.164383 * (1 << 16)), int16_t(-0.391762 * (1 << 16)), int16_t(-0.312968 * (1 << 16)) }; // offset: -1 0 +0.5
+	static const int16_t YUV_B[3] = { int16_t(0.164383 * (1 << 16)),         0 * (1 << 16),  int16_t(0.096027 * (1 << 16)) }; // offset: -1 0 -1.5
 	static const __m64 OFFSET_128 = _mm_set_pi16(128, 128, 128, 128);
 	static const __m64 OFFSET_16 = _mm_set_pi16(16, 16, 16, 16);
 
@@ -160,9 +160,9 @@ void MMX::yuv2rgb(const RGB* dst_rgb, const YUV* src_yuv) {
 namespace AVX {
 	int16_t tmp_u[WIDTH*HEIGHT];
 	int16_t tmp_v[WIDTH*HEIGHT];
-	static const int16_t YUV_R[3] = { 0.164383 * (1 << 16),  0.017232 * (1 << 16),	       0 * (1 << 16) }; // offset: -1 -2 0
-	static const int16_t YUV_G[3] = { 0.164383 * (1 << 16), -0.391762 * (1 << 16), -0.312968 * (1 << 16) }; // offset: -1 0 +0.5
-	static const int16_t YUV_B[3] = { 0.164383 * (1 << 16),         0 * (1 << 16),  0.096027 * (1 << 16) }; // offset: -1 0 -1.5
+	static const int16_t YUV_R[3] = { int16_t(0.164383 * (1 << 16)),  int16_t(0.017232 * (1 << 16)),	       0 * (1 << 16) }; // offset: -1 -2 0
+	static const int16_t YUV_G[3] = { int16_t(0.164383 * (1 << 16)), int16_t(-0.391762 * (1 << 16)), int16_t(-0.312968 * (1 << 16)) }; // offset: -1 0 +0.5
+	static const int16_t YUV_B[3] = { int16_t(0.164383 * (1 << 16)),         0 * (1 << 16),  int16_t(0.096027 * (1 << 16)) }; // offset: -1 0 -1.5
 	static const __m256i OFFSET_128 = _mm256_set_epi16(128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128);
 	static const __m256i OFFSET_16 = _mm256_set_epi16(16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16);
 }
@@ -290,9 +290,9 @@ void AVX::yuv2rgb(const RGB* dst_rgb, const YUV* src_yuv) {
 namespace SSE {
 	int16_t tmp_u[WIDTH*HEIGHT];
 	int16_t tmp_v[WIDTH*HEIGHT];
-	static const int16_t YUV_R[3] = { 0.164383 * (1 << 16),  0.017232 * (1 << 16),	       0 * (1 << 16) }; // offset: -1 -2 0
-	static const int16_t YUV_G[3] = { 0.164383 * (1 << 16), -0.391762 * (1 << 16), -0.312968 * (1 << 16) }; // offset: -1 0 +0.5
-	static const int16_t YUV_B[3] = { 0.164383 * (1 << 16),         0 * (1 << 16),  0.096027 * (1 << 16) }; // offset: -1 0 -1.5
+	static const int16_t YUV_R[3] = { int16_t(0.164383 * (1 << 16)),  int16_t(0.017232 * (1 << 16)),	       0 * (1 << 16) }; // offset: -1 -2 0
+	static const int16_t YUV_G[3] = { int16_t(0.164383 * (1 << 16)), int16_t(-0.391762 * (1 << 16)), int16_t(-0.312968 * (1 << 16)) }; // offset: -1 0 +0.5
+	static const int16_t YUV_B[3] = { int16_t(0.164383 * (1 << 16)),         0 * (1 << 16),  int16_t(0.096027 * (1 << 16)) }; // offset: -1 0 -1.5
 	static const __m128i OFFSET_128 = _mm_set_epi16(128, 128, 128, 128, 128, 128, 128, 128);
 	static const __m128i OFFSET_16 = _mm_set_epi16(16, 16, 16, 16, 16, 16, 16, 16);
 }
