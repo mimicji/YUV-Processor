@@ -1,7 +1,6 @@
 # YUV-Processor #
-State: Done
 
-YUV-Processor is a team work (Lab4.1) of Computer Architecture. It is developed by [Kaihang Ji](https://github.com/mimicji). All rights reserved.
+YUV-Processor is a homework (Lab4.1) of Computer Architecture. It is developed by [Kaihang Ji](https://github.com/mimicji). All rights reserved.
 
 Mainly it has two functions:
 
@@ -14,7 +13,7 @@ Happy feast of winter veil!
 
 ## Platform ##
 
-Considering inline assembler functions, YUV-Processor can only be compiled by VC++. Also, Windows and an Intel CPU are requested for running it.
+WIN32 and Linux are both available. However, an Intel CPU which supports AVX2 is requested for running it.
 
 ## Input/Output file format ##
 

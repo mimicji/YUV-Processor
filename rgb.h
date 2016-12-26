@@ -8,6 +8,7 @@
 
 #include <cstdint>
 #include <iostream>
+#include <memory.h>
 #ifdef RGB
 #undef RGB
 #endif

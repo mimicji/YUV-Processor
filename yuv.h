@@ -8,6 +8,7 @@
 
 #include <cstdint>
 #include <iostream>
+#include <memory.h>
 class RGB;
 using std::cin;
 using std::cout;

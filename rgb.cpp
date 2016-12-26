@@ -10,7 +10,7 @@
 #include "rgb.h"
 #include "bmp.h"
 
-_forceinline static inline uint8_t format(int16_t input) {
+inline uint8_t format(int16_t input) {
 	if (input > 255) {
 		return (uint8_t)255;
 	}

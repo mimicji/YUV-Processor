@@ -139,9 +139,9 @@ void MMX::yuv2rgb(const RGB* dst_rgb, const YUV* src_yuv) {
 		tmp = _m_pmulhw(tmp_data, V_B);			// (V - 128) * 0.096027
 		*dst = _m_paddsw(*dst, tmp);			// B += (V - 128) * 0.096027
 		tmp = _m_psrawi(tmp_data, 1);
-		*dst = _m_paddsw(*dst, tmp);			// G += (V - 128) >> 1;
+		*dst = _m_paddsw(*dst, tmp);			// B += (V - 128) >> 1;
 		tmp = _m_psllwi(tmp_data, 1);
-		*dst = _m_paddsw(*dst, tmp);			// G += (V - 128) << 1;
+		*dst = _m_paddsw(*dst, tmp);			// B += (V - 128) << 1;
 		
 		// increase iterators
 		dst++;

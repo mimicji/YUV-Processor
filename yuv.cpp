@@ -19,7 +19,7 @@ void YUV::u8_to_s16() const {
 	}
 }
 
-_forceinline static inline uint8_t format(int16_t input) {
+inline uint8_t format(int16_t input) {
 	if (input > 255) {
 		return (uint8_t)255;
 	}
@@ -42,7 +42,7 @@ void YUV::s16_to_u8() const {
 int YUV::read_file(const char* file_name) const {
 	FILE * fp;
 	if ((fp = fopen(file_name, "rb")) == NULL) return -1;
-	char * buf = new char[width * height * 1.5];
+	char * buf = new char[(unsigned int)(width * height * 1.5)];
 	fread(buf, sizeof(char), width * height * 1.5, fp);
 	fclose(fp);
 	memcpy(y8, buf, width * height * sizeof(char));
@@ -53,7 +53,7 @@ int YUV::read_file(const char* file_name) const {
 }
 
 void YUV::write(FILE * fp) const{
-	char * buf = new char[width * height * 1.5];
+	char * buf = new char[(unsigned int)(width * height * 1.5)];
 	memcpy(buf, y8,  width * height * sizeof(char));
 	memcpy(buf + width * height, u8,  width * height * sizeof(char) / 4);
 	memcpy(buf + (width * height * 5) / 4, v8,  width * height * sizeof(char) / 4);

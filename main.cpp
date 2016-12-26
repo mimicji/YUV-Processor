@@ -3,7 +3,7 @@
 //	Description: Computer Architecture Lab4.1
 //	Author: Kaihang JI
 //	Last Edit: 12/24/2016 01:18
-//	All rights reserved. Only for Win32. 
+//	All rights reserved.
 //==============================================
 
 #include "process.h"
@@ -67,18 +67,23 @@ using namespace AVX;
 int main() {
 	FILE* fout;
 	YUV* input_yuv = new YUV(WIDTH, HEIGHT);
-	YUV* input_yuv2 = new YUV(WIDTH, HEIGHT);
 	YUV* dst_yuv = new YUV(WIDTH, HEIGHT);
 	RGB* tmp_rgb = new RGB(WIDTH,HEIGHT);
-	RGB* tmp_rgb2 = new RGB(WIDTH, HEIGHT);
 	RGB* dst_rgb = new RGB(WIDTH, HEIGHT);
+#ifdef	IMAGE_OVERLAY
+	YUV* input_yuv2 = new YUV(WIDTH, HEIGHT);
+	RGB* tmp_rgb2 = new RGB(WIDTH, HEIGHT);
+#endif
+
 	clock_t begin_time = clock();
 	clock_t total_time = 0;
 
 	// Open INPUT_YUV_1 and convert it into rgb.
 	if (input_yuv->read_file(INPUT_YUV_1) == -1) {
 		cerr << "INPUT FILE ERROR" << endl;
+        #ifdef WIN32
 		system("pause");
+        #endif
 		return 0;
 	}
 	else {
@@ -89,7 +94,9 @@ int main() {
 	#ifdef	IMAGE_OVERLAY
 	if (input_yuv2->read_file(INPUT_YUV_2) == -1) {
 		cerr << "INPUT FILE ERROR." << endl;
+		#ifdef WIN32
 		system("pause");
+        #endif
 		return 0;
 	}
 	else {
@@ -120,6 +127,9 @@ int main() {
 
 		// Image overlay.
 		#ifdef  IMAGE_OVERLAY
+			#ifdef ALPHA_BLENDING
+				#error Both of IMAGE_OVERLAY and ALPHA_BLENDING have been defined.
+			#endif
 			image_overlay(dst_rgb, tmp_rgb, tmp_rgb2, alpha);
 		#endif
 		
@@ -141,9 +151,11 @@ int main() {
 	fclose(fout);
 
 	// Print run time info on the screen.
-	cerr << "Calculating time: " << total_time << "ms" << endl;
+	cerr << "Core function time: " << total_time << "ms" << endl;
 	cerr << "Total run time: " << clock() - begin_time << "ms" << endl;
+	#ifdef WIN32
 	system("pause");
+    #endif
 
 	// Nomarlly exit.
 	return 0;

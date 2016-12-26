@@ -3,13 +3,13 @@
 //	Description: Computer Architecture Lab4.1
 //	Author: Kaihang JI
 //	Last Edit: 12/24/2016 01:18
-//	All rights reserved. Only for Win32. 
+//	All rights reserved.
 //==============================================
 
 
 #include "process.h"
 namespace{
-_forceinline inline uint8_t format(int16_t input) {
+inline uint8_t format(int16_t input) {
 	if (input > 255) {
 		return (uint8_t)255;
 	}
