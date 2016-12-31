@@ -19,12 +19,14 @@
  *	AVX :
  *		Run the program with AVX. Technically, it will be most
  *		efficient. This part requires immintrin.h.
+ *      #Warning : it may cause core dumped in Linux. See readme
+ *      for more information.
  *	SSE :
  *		Run the program with SSE2. Technically, it will be more
  *		efficient than MMX but less than AVX. This part requires
  *		emmintrin.h.
  */
-using namespace AVX;
+using namespace Non_Simd;
 
 /**
  * Choose the program function. If you want to alpha_blending,
@@ -47,10 +49,10 @@ using namespace AVX;
  *		It is the path of the output BMP file. See BMP_OUT for
  *		in main.cpp and RGB::write_bmp in rgb.cpp for more detials.
  */
-#define INPUT_YUV_1 "D:\\dem1.yuv"
-#define INPUT_YUV_2 "D:\\dem2.yuv"
-#define OUTPUT_YUV "D:\\out.yuv"
-#define OUTPUT_BMP "D:\\out.bmp"
+#define INPUT_YUV_1 "dem1.yuv"
+#define INPUT_YUV_2 "dem2.yuv"
+#define OUTPUT_YUV "out.yuv"
+#define OUTPUT_BMP "out.bmp"
 
 // Do not modify this part.
 #ifndef ALPHA_BLENDING
@@ -60,9 +62,10 @@ using namespace AVX;
 #endif
 
 // Output a BMP from RGB(u8) for debugging.
-#define BMP_OUT(path, rgb);	do{FILE* bmpout = fopen(path, "wb"); \
+#define BMP_OUT(path, rgb)	do{FILE* bmpout = fopen(path, "wb"); \
 							rgb->write_bmp(bmpout); \
-							fclose(bmpout);} while(false); \
+							fclose(bmpout);} while(false)
+
 
 int main() {
 	FILE* fout;
@@ -77,7 +80,6 @@ int main() {
 
 	clock_t begin_time = clock();
 	clock_t total_time = 0;
-
 	// Open INPUT_YUV_1 and convert it into rgb.
 	if (input_yuv->read_file(INPUT_YUV_1) == -1) {
 		cerr << "INPUT FILE ERROR" << endl;
@@ -87,7 +89,14 @@ int main() {
 		return 0;
 	}
 	else {
+		// Record the begin time.
+		clock_t recuit_time = clock();
+
+		// Call YUV to RGB
 		yuv2rgb(tmp_rgb, input_yuv);
+
+		// Calculate the running time.
+		total_time += clock() - recuit_time;
 	}
 
 	// Open INPUT_YUV_2 and convert it into rgb.
@@ -96,11 +105,18 @@ int main() {
 		cerr << "INPUT FILE ERROR." << endl;
 		#ifdef WIN32
 		system("pause");
-        #endif
+        	#endif
 		return 0;
 	}
 	else {
+		// Record the begin time.
+		clock_t recuit_time = clock();
+
+		// Call YUV to RGB
 		yuv2rgb(tmp_rgb2, input_yuv2);
+
+		// Calculate the running time.
+		total_time += clock() - recuit_time;
 	}
 	#endif
 
@@ -151,11 +167,15 @@ int main() {
 	fclose(fout);
 
 	// Print run time info on the screen.
+	#ifdef WIN32
 	cerr << "Core function time: " << total_time << "ms" << endl;
 	cerr << "Total run time: " << clock() - begin_time << "ms" << endl;
-	#ifdef WIN32
 	system("pause");
-    #endif
+    	#else
+	// In Linux, clock() return in us instead of ms.
+	cerr << "Core function time: " << total_time/1000 << "ms" << endl;
+	cerr << "Total run time: " << (clock() - begin_time)/1000 << "ms" << endl;
+    	#endif
 
 	// Nomarlly exit.
 	return 0;

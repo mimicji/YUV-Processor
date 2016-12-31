@@ -13,7 +13,10 @@ Happy feast of winter veil!
 
 ## Platform ##
 
-WIN32 and Linux are both available. However, an Intel CPU which supports AVX2 is requested for running it.
+WIN32 and Linux are both available. An Intel CPU which supports AVX2 is requested for running it.
+
+However, on Linux AVX may cause a segmentation fault at yuv2rgb:Line 198 because of reading `*src_y`. The reason remains unknowned, even I modified it into 
+`*src_y = OFFSET_16;`. However, we can modify the content at `src_y` by pointer `src_yuv->y16`.
 
 ## Input/Output file format ##
 

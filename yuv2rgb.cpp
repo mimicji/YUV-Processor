@@ -180,7 +180,11 @@ void AVX::yuv2rgb(const RGB* dst_rgb, const YUV* src_yuv) {
 	}
 
 	_mm_empty();
-
+    
+#ifdef __linux__ 
+    std::cerr << "Warning : It may cause core dumped on Linux. See readme for more information." << std::endl;
+#endif
+    
 	// YUV to R Channel
 	__m256i* dst = (__m256i*) dst_rgb->r16;
 	__m256i* src_y = (__m256i*)src_yuv->y16;

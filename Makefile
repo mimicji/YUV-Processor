@@ -1,6 +1,6 @@
 CC = g++ 
 PROC = yuv_processor
-OPTIMIZE = -O2
+OPTIMIZE = -O3
 WARNING = -Wno-unused-result
 SETTINGS = -std=c++11 -msse2 -mmmx -mavx2
 CFLAGS = $(OPTIMIZE) $(WARNING) $(SETTINGS)
